@@ -1,0 +1,9 @@
+<div class=" pt-14 w-full">
+    <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+
+        @for (item of contactList(); track item.id) {
+        <app-contact-card [contact]="item" />
+        }
+
+    </ul>
+</div>
