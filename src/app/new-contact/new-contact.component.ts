@@ -1,6 +1,8 @@
-import { Component, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { Contact } from '../services/contact.modal';
+import { ContactService } from '../services/contact.service';
 
 @Component({
   selector: 'app-new-contact',
@@ -11,6 +13,9 @@ import { RouterLink } from '@angular/router';
 export class NewContactComponent {
 
     invalidForm = signal<boolean>(false);
+    editContact = signal<any>(null);
+    private contactService = inject(ContactService);
+    private router = inject(Router);
 
     contactForm = new FormGroup({
       name: new FormControl('',{validators: [Validators.required]}),
@@ -18,13 +23,39 @@ export class NewContactComponent {
       email: new FormControl('', {validators: [Validators.required, Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]})
     })
 
+    constructor() {
+      effect(() => {
+        this.editContact.set(this.contactService.updateContactInfo());
+
+        if(this.editContact()){
+          this.contactForm.setValue({
+            name: this.editContact().name,
+            mobile: this.editContact().mobile,
+            email: this.editContact().email
+          })
+        }
+        
+
+      })
+    }
+
     contactSubmit(){
 
       if(this.contactForm.invalid){
         this.invalidForm.set(true)
       } else{
-        this.invalidForm.set(false)
-        console.log(this.contactForm.value)  
+
+        if(this.editContact()){
+          this.contactService.updateContact(this.contactForm.value, this.editContact().id);
+          this.router.navigate(['/contacts']);
+          this.editContact.set(null)
+        } else{
+          const idGenarate = Date.now().toString();
+          const formInfo = ({...this.contactForm.value, id: +idGenarate});
+          this.contactService.addNewContact(formInfo);
+          this.router.navigate(['/contacts'])
+          console.log(formInfo)  
+        }
       }
 
       

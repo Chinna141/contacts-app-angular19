@@ -1,6 +1,13 @@
 <div class=" pt-14 w-full">
     <ul class="divide-y divide-gray-200 dark:divide-gray-700">
 
+        @if (contactList().length ==0) {
+            <li class="px-4">
+        <div class="p-4 my-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+            <span class="font-medium">No contacts!</span> Add your contacts.
+        </div></li>
+        }
+        
         @for (item of contactList(); track item.id) {
         <app-contact-card [contact]="item" />
         }

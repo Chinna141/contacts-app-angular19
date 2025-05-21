@@ -1,5 +1,6 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { ContactCardComponent } from '../contact-card/contact-card.component';
+import { ContactService } from '../services/contact.service';
 
 @Component({
   selector: 'app-contact-list',
@@ -8,11 +9,25 @@ import { ContactCardComponent } from '../contact-card/contact-card.component';
   styleUrl: './contact-list.component.scss'
 })
 export class ContactListComponent {
-    contactList = signal([
-      {id:1, name:'chinna', mobile:'9010333141'},
-      {id:2, name:'sukanya', mobile: '9063033141'}
-    ])
+    contactList = signal<any>([]);
     contact = input.required<any>();
+    
 
+    private contactService = inject(ContactService);
+
+    constructor(){
+      effect(() => {
+        const updatedList = this.contactService.contactList();
+        this.contactList.set(updatedList);
+      })
+    }
+
+    ngOnInit(): void {
+      //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
+      //Add 'implements OnInit' to the class.
+      //this.contactList.set(this.contactService.contactList());
+    }
+
+    
     
 }
