@@ -24,8 +24,6 @@ export class ContactService {
     }
 
     updateContact(getContact: any, getId: number){
-        //const objIndex = this.contactList().findIndex(contact => contact.id == getContact.id);
-
         const update = this.contactList().map((contact) => {
             if(contact.id == getId){
                 return {...contact, id: getId, name: getContact.name, mobile:getContact.mobile, email:getContact.email }
@@ -33,11 +31,8 @@ export class ContactService {
                 return contact
             }
         })
-
-        console.log(update)
-
-        this.contactList.set(update)
-
+        this.contactList.set(update);
+        this.updateContactInfo.set(null);
     }
 
     deleteContact(id: number){

@@ -48,13 +48,15 @@ export class NewContactComponent {
         if(this.editContact()){
           this.contactService.updateContact(this.contactForm.value, this.editContact().id);
           this.router.navigate(['/contacts']);
-          this.editContact.set(null)
+          this.editContact.set(null);
+          this.contactForm.reset();
         } else{
           const idGenarate = Date.now().toString();
           const formInfo = ({...this.contactForm.value, id: +idGenarate});
           this.contactService.addNewContact(formInfo);
           this.router.navigate(['/contacts'])
-          console.log(formInfo)  
+          console.log(formInfo)
+          this.contactForm.reset();
         }
       }
 
