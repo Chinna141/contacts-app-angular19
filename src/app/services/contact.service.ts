@@ -6,19 +6,12 @@ import { Contact } from "./contact.modal";
 }) 
 
 export class ContactService {
-
-
-
     contactList = signal([
       {id:1, name:'john doe', mobile:'8701369370', email: 'john@gmail.com'},
       {id:2, name:'mosh hemadani', mobile: '7931336278', email: 'hemadani@gmail.com'}
     ])
-
-
-
-
     updateContactInfo = signal<any>(null);
-
+    
     addNewContact(contact: any){
         this.contactList.update(prev => [...prev, contact])
     }
