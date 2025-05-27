@@ -30,7 +30,6 @@ export class ContactService {
 
     deleteContact(id: number){
         const filteredItem = this.contactList().filter((con) => con.id !== id);
-        console.log(filteredItem)
         this.contactList.set(filteredItem)
     }
 }
