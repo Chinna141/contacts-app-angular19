@@ -17,7 +17,7 @@ export class ContactListComponent {
 
     constructor(){
       effect(() => {
-        const updatedList = this.contactService.contactList();
+        const updatedList = this.contactService.contactList().map((item) => ({...item, color: this.getRandomColor()}));
         this.contactList.set(updatedList);
       })
     }
@@ -28,6 +28,10 @@ export class ContactListComponent {
       //this.contactList.set(this.contactService.contactList());
     }
 
+    getRandomColor():string {
+    var color = Math.floor(0x1000000 * Math.random()).toString(16);
+    return '#' + ('000000' + color).slice(-6);
+  }
     
     
 }

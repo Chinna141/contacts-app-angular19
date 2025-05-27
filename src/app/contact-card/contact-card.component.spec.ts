@@ -1,64 +1,92 @@
-import { ComponentFixture, TestBed } from "@angular/core/testing"
-import { ContactCardComponent } from "./contact-card.component";
-import { ContactService } from "../services/contact.service";
-import {signal, Signal, WritableSignal } from "@angular/core";
-import { Contact } from "../services/contact.modal";
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ContactCardComponent } from './contact-card.component';
+import { ContactService } from '../services/contact.service';
+import { Router } from '@angular/router';
 
-describe("Contact Card component", () => {
+const mockData = {
+  initialContacts: [
+      {
+        id: 1,
+        name: 'john doe',
+        mobile: '8701369370',
+        email: 'john@gmail.com',
+      },
+      {
+        id: 2,
+        name: 'mosh hemadani',
+        mobile: '7931336278',
+        email: 'hemadani@gmail.com',
+      },
+    ],
+    expectedMockContact: [
+      {
+        id: 1,
+        name: 'john doe',
+        mobile: '8701369370',
+        email: 'john@gmail.com',
+      },
+    ]
+}
 
-    let component: ContactCardComponent;
-    let fixture: ComponentFixture<ContactCardComponent>;
-    let service: ContactService;
-    let contactListSignal: WritableSignal<Contact[]>
+describe('Contact Card component', () => {
+  let component: ContactCardComponent;
+  let fixture: ComponentFixture<ContactCardComponent>;
+  let service: ContactService;
+  let router: Router;
 
-    beforeEach( async () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [ContactCardComponent],
+      providers: [ContactService, Router],
+    }).compileComponents();
 
-        contactListSignal = signal([
-            {id:1, name:'john doe', mobile:'8701369370', email: 'john@gmail.com'},
-            {id:2, name:'mosh hemadani', mobile: '7931336278', email: 'hemadani@gmail.com'}
-        ])
+    fixture = TestBed.createComponent(ContactCardComponent);
+    component = fixture.componentInstance;
+    service = TestBed.inject(ContactService);
+    router = TestBed.inject(Router)
+  });
 
-        await TestBed.configureTestingModule({
-            providers: [
-                ContactCardComponent,
-                {
-                provide: ContactService,
-                useValue: {
-                    contactList:() => contactListSignal(),
-                    deleteContact: jasmine.createSpy('deleteContact')
-                }
-            }]
-        }).compileComponents();
 
-        fixture = TestBed.createComponent(ContactCardComponent);
-        component = fixture.componentInstance;
-        service = TestBed.inject(ContactService);
-        fixture.detectChanges();
-    })
+  it('Should create ContactCardComponent', () => {
+    expect(component).toBeTruthy();
+  });
 
-    it("Should create ContactCardComponent", () => {
-        expect(component).toBeTruthy();
-    })
+  it('Should required the contact input', async () => {
+    fixture.componentRef.setInput('contact', mockData.expectedMockContact[0]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(component.contact()).toEqual(mockData.expectedMockContact[0]);
+  });
 
-    // it("Should required the contact input", async () => {
-    //     const mockContact = {id:1, name:'john doe', mobile:'8701369370', email: 'john@gmail.com'}
-    //     fixture.componentRef.setInput('contact', mockContact);
-    //     fixture.detectChanges();
-    //     await fixture.whenStable();
-    //     expect(component.contact()).toEqual(mockContact)
-    // })
+  
 
-    it("Should delete the contact number", () => {
-        const expectedMockContact = [
-            {id:1, name:'john doe', mobile:'8701369370', email: 'john@gmail.com'}
-        ]
+  it('Should delete the contact number', () => {
+    service.contactList.set(mockData.initialContacts);
+    spyOn(service, 'deleteContact').and.callFake((id: number) => {
+      service.contactList.set(service.contactList().filter((i) => i.id !== id));
+    });
 
-        spyOn(service, 'deleteContact').and.callFake((id: number) => {
-            contactListSignal.set(contactListSignal().filter((i) => i.id !== id))
-        });
-        component.deleteNumber(2)
-        expect(service.deleteContact).toHaveBeenCalledWith(2);
-        expect(service.contactList()).toEqual(expectedMockContact)
-    })
+    fixture.componentRef.setInput('contact', mockData.initialContacts[0]);
 
-})
+    fixture.detectChanges();
+    component.deleteNumber(2);
+    expect(service.deleteContact).toHaveBeenCalledWith(2);
+    expect(service.contactList()).toEqual(mockData.expectedMockContact);
+  });
+
+  it("should call updatedContactinfo with provided contact", () => {
+    
+    spyOn(service, 'updateContactInfo').and.returnValue(mockData.initialContacts[0]);
+    fixture.componentRef.setInput('contact', mockData.initialContacts[0]);
+    fixture.detectChanges()
+
+    component.editContact(mockData.initialContacts[0]);
+    expect(service.updateContactInfo.set).toHaveBeenCalledWith(mockData.initialContacts[0])
+  })
+
+  it("should navigate to /newcontact", () => {
+    component.editContact(mockData.initialContacts[0]);
+    expect(router.navigate).toHaveBeenCalledWith(['/newcontact'])
+  })
+
+});
