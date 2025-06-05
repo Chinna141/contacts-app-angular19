@@ -37,7 +37,12 @@ describe('Contact Card component', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ContactCardComponent],
-      providers: [ContactService, Router],
+      providers: [{
+        provide: ContactService,
+        useValue: {
+          updateContactInfo: jasmine.createSpy('updateContactInfo').and.returnValue(mockData.initialContacts[0])
+        }
+      }, Router],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ContactCardComponent);
@@ -81,7 +86,8 @@ describe('Contact Card component', () => {
     fixture.detectChanges()
 
     component.editContact(mockData.initialContacts[0]);
-    expect(service.updateContactInfo.set).toHaveBeenCalledWith(mockData.initialContacts[0])
+    console.log('Spy calls', service.updateContactInfo);
+    expect(service.updateContactInfo).toHaveBeenCalledWith(mockData.initialContacts[0])
   })
 
   it("should navigate to /newcontact", () => {
